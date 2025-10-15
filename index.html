@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Praktikum Pemrograman Web B - Pertemuan 3</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: white;
+      color: black;
+      margin: 0;
+      padding: 20px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .dark-mode {
+      background-color: #121212;
+      color: white;
+    }
+
+    .button-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 10px 15px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      background-color: #007bff;
+      color: white;
+      font-size: 14px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .card-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background-color: aquamarine;
+      padding: 10px;
+      width: 200px;
+      height: 280px;
+      border-radius: 8px;
+      position: relative;
+      transition: transform 0.2s ease; /* animasi halus */
+    }
+
+    .card:hover {
+      transform: scale(1.05); /* membesar sedikit saat diarahkan */
+    }
+
+    .dark-mode .card {
+      background-color: #2a2a2a;
+      color: white;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 8px;       /* Geser ke bawah */
+      right: 8px;     /* Geser ke kiri */
+      background-color: red;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 14px;
+      width: 22px;
+      height: 22px;
+      line-height: 18px; /* Supaya X-nya di tengah */
+      text-align: center;
+      padding: 0;
+    }
+
+
+    /* Popup Form */
+    .popup {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .popup-content {
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 300px;
+      position: relative;
+    }
+
+    .popup-content h3 {
+      margin-top: 0;
+    }
+
+    .popup-content input {
+      width: 100%;
+      padding: 2px;
+      margin-top: 6px;
+      margin-bottom: 10px;
+    }
+
+    .popup-content button {
+      background-color: #28a745;
+    }
+
+    .popup-content .close-popup {
+      background-color: red;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+    }
+
+    .dark-mode .popup-content {
+      background-color: #333;
+      color: white;
+    }
+
+    .button-container .button-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    /* ✅ Posisi tombol bawah  */
+    .posisibawah {
+      position: static;
+      padding: 0px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+    .posisiatas {
+      position: static;
+      padding: 0px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      margin-left:10px
+    }
+    
+  </style>
+</head>
+<body>
+
+  <div class="button-container button-row .posisiatas">
+    <button onclick="malam()">Mode Malam</button>
+    <button onclick="tambahcard()">Tambah Card</button>
+  </div>
+
+  <!-- Card container -->
+  <div class="card-container" id="cardContainer">
+    <!-- Card akan ditambahkan lewat JavaScript -->
+  </div>
+
+  <!-- ✅ Tombol bawah dipindah ke bawah card-container -->
+  <div class="button-container button-row posisibawah">
+    <button onclick="popupform()">Buka Popup Form</button>
+    <button onclick="cekKOM()">Cek KOM Berdasarkan NIM</button>
+  </div>
+
+  <!-- Popup Form -->
+  <div class="popup" id="popupForm">
+    <div class="popup-content">
+      <button class="close-popup" onclick="closePopup()">TUTUP</button>
+      <table>
+        <tbody>
+          <h3>Form Pendaftaran</h3>
+          <tr>
+            <input type="text" placeholder="Masukkan Nama" id="nama">
+          </tr>
+          <tr>
+            <input type="email" placeholder="Masukkan email" id="email">
+          </tr>
+          <button onclick="submitForm()">Kirim</button>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    let darkMode = false;
+    var cardIndex = 1;
+
+    // 1. Mode Malam
+    function malam() {
+            let body = document.querySelector("body");
+            let tulisan = document.querySelector("#tulisan");
+
+            // Cek warna background saat ini
+            if (body.style.backgroundColor === "black") {
+                // Jika hitam, ganti ke mode siang
+                body.style.backgroundColor = "white";
+                tulisan.style.color = "blue";
+            } else {
+                // Jika bukan hitam, ganti ke mode malam
+                body.style.backgroundColor = "black";
+                tulisan.style.color = "white";
+            }
+    }
+
+    // 2. Tambah & Hapus Card
+    let cards = []; // Array untuk menyimpan semua card
+
+    // Render semua card agar nomor selalu berurutan
+    function ulangindex() {
+        const container = document.getElementById('cardContainer');
+        container.innerHTML = ''; // Kosongkan container sebelum render
+
+        cards.forEach((card, index) => 
+        { // card ke index pakai for each buat hitung index
+            const div = document.createElement('div');
+            div.className = 'card';
+            div.innerHTML = `<button class="close-btn" onclick="removeCard(${index})">×</button><p>Card ke-${index + 1}</p>`;
+            container.appendChild(div);
+        }
+      );
+    }
+
+    // Fungsi tambah card otomatis
+    function tambahcard() {
+        cards.push(''); // Tambahkan card
+        ulangindex();  // ulang indexnya
+    }
+
+    // Fungsi hapus card
+    function removeCard(index) {
+        cards.splice(index, 1); // Hapus card dari array
+        ulangindex();           // ulang indexnya
+    }
+
+    // 3. Popup Form
+    function popupform() {
+      document.getElementById('popupForm').style.display = 'flex';
+    }
+
+    function closePopup() {
+      document.getElementById('popupForm').style.display = 'none';
+    }
+
+    function submitForm() {
+      const nama = document.getElementById('nama').value;
+      if (nama.trim() === '') {
+        alert('Nama tidak boleh kosong!');
+      } else {
+        alert(`Form terkirim!\nNama: ${nama}`);
+        closePopup();
+      }
+    }
+
+    // 4. Cek KOM berdasarkan NIM
+    function cekKOM() {
+      var nim = prompt('Masukkan NIM Mahasiswa TI:');
+      //dimodulo 1000 biar nanti sisa 3 digit terakhir (ratusan)
+      var modkom = nim % 1000;
+      if (nim.trim() === '') {
+        alert('NIM tidak boleh kosong!');
+      } else if (modkom % 3 == 1) {
+        alert(`NIM ${nim} berada di KOM A`);
+      } else if (modkom % 3 == 2) {
+        alert(`NIM ${nim} berada di KOM B`);
+      } else if (modkom % 3 == 0) {
+        alert(`NIM ${nim} berada di KOM C`);
+      } else {
+        alert(`NIM ${nim} tidak dikenali (bukan KOM 1/2/3).`);
+      }
+    }
+  </script>
+</body>
+</html>
